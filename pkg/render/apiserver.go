@@ -811,14 +811,6 @@ func (c *apiServerComponent) tigeraUserClusterRole() *rbacv1.ClusterRole {
 			},
 			Verbs: []string{"get", "watch", "list"},
 		},
-		// A POST to AuthenticationReviews can be compared with a POST to the TokenReviews endpoint.
-		// This api is added to circumvent a bug in the k8s-apiserver that is present in k8s
-		// versions up to v1.18 (kubernetes/pull/87612) when oidc audiences are enabled.
-		{
-			APIGroups: []string{"projectcalico.org"},
-			Resources: []string{"authenticationreviews"},
-			Verbs:     []string{"create"},
-		},
 	}
 
 	// If this is a managed cluster the rule to access the clusters indices in Elasticsearch need to be added to the management
@@ -929,14 +921,6 @@ func (c *apiServerComponent) tigeraNetworkAdminClusterRole() *rbacv1.ClusterRole
 				"globalthreatfeeds/status",
 			},
 			Verbs: []string{"create", "update", "delete", "patch", "get", "watch", "list"},
-		},
-		// A POST to AuthenticationReviews can be compared with a POST to the TokenReviews endpoint.
-		// This api is added to circumvent a bug in the k8s-apiserver that is present in k8s
-		// versions up to v1.18 (kubernetes/pull/87612) when oidc audiences are enabled.
-		{
-			APIGroups: []string{"projectcalico.org"},
-			Resources: []string{"authenticationreviews"},
-			Verbs:     []string{"create"},
 		},
 	}
 
