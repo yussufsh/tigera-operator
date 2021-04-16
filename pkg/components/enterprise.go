@@ -143,7 +143,7 @@ var (
 	}
 
 	ComponentTigeraCNI = component{
-		Version: "master",
+		Version: "v3.7.0-calient-0.dev-2-g24a8da20386e",
 		Image:   "tigera/cni",
 	}
 
