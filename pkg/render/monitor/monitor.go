@@ -214,11 +214,6 @@ func (mc *monitorComponent) clusterRole() client.Object {
 			Resources: []string{"subjectaccessreviews"},
 			Verbs:     []string{"create"},
 		},
-		{
-			APIGroups: []string{"projectcalico.org"},
-			Resources: []string{"authenticationreviews"},
-			Verbs:     []string{"create"},
-		},
 	}
 
 	return &rbacv1.ClusterRole{
@@ -370,9 +365,8 @@ func (mc *monitorComponent) prometheus() *monitoringv1.Prometheus {
 			InitContainers:     initContainers,
 			Containers: []corev1.Container{
 				{
-					Name:            "authn-proxy",
-					Image:           "gcr.io/tigera-dev/rd/tigera/prometheus-service:rene", //revert to mc.prometheusServiceImage
-					ImagePullPolicy: "Always",                                              //todo: remove
+					Name:  "authn-proxy",
+					Image: mc.prometheusServiceImage,
 					Ports: []corev1.ContainerPort{
 						{
 							ContainerPort: PrometheusProxyPort,
