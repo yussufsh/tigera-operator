@@ -1,62 +1,20 @@
 version: v1.0
-name: Initial Pipeline
+name: Go
 agent:
   machine:
-    type: e1-standard-8
-    os_image: ubuntu1804
-global_job_config:
-  secrets:
-  - name: docker-hub
-  # Mount the github SSH secret for pulling private repositories.
-  - name: private-repo
-  prologue:
-    commands:
-    - echo $DOCKERHUB_PASSWORD | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-    # Correct permissions since they are too open by default:
-    - chmod 0600 ~/.keys/*
-    # Add the key to the ssh agent:
-    - ssh-add ~/.keys/*
-    # Free up some space
-    - sudo rm -rf ~/.kiex ~/.phpbrew ~/.rbenv ~/.nvm ~/.kerl
-    # Semaphore mounts a copy-on-write FS as /var/lib/docker in order to provide a pre-loaded cache of
-    # some images. However, the cache is not useful to us and the copy-on-write FS is a big problem given
-    # how much we churn docker containers during testing.  Disable it.
-    - sudo systemctl stop docker
-    - sudo umount /var/lib/docker && sudo killall qemu-nbd || true
-    - sudo systemctl start docker
-
+    type: e1-standard-2
+    os_image: ubuntu2004
 blocks:
-  - name: Build
+  - name: Test
     task:
       jobs:
-        - name: Build
+        - name: go test
           commands:
-            - export BRANCH_NAME=$SEMAPHORE_GIT_BRANCH
-            - make ci
-            - >-
-              if [ -z "${SEMAPHORE_GIT_PR_NUMBER}" ]; then 
-                make cd CONFIRM=true;
-              fi
-            - >-
-              if [ -z "${SEMAPHORE_GIT_PR_NUMBER}" ]; then
-                make maybe-build-release;
-              fi
-      secrets:
-        - name: quay-robot-semaphore_v2
-        - name: operator-redhat-connect
-      prologue:
-        commands:
-          - checkout
-          - >-
-            if [[ -v SEMAPHORE_GIT_PR_NUMBER ]]; then
-              unset QUAY_USERNAME QUAY_TOKEN; docker logout; docker logout quay.io;
-            else
-              docker login -u="$QUAY_USERNAME" -p="$QUAY_TOKEN" quay.io;
-            fi
-          - cache restore go-pkg-cache
-          - cache restore go-mod-cache
-      epilogue:
-        on_pass:
-          commands:
-            - cache store go-pkg-cache .go-pkg-cache
-            - 'cache store go-mod-cache ${HOME}/go/pkg/mod/cache'
+            - sem-version go 1.11
+            - export GO111MODULE=on
+            - export GOPATH=~/go
+            - 'export PATH=/home/semaphore/go/bin:$PATH'
+            - checkout
+            - go get ./...
+            - go test ./...
+            - go build -v .
