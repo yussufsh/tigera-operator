@@ -18,18 +18,10 @@ global_job_config:
       - sudo umount /var/lib/docker && sudo killall qemu-nbd || true
       - sudo systemctl start docker
 blocks:
-  - name: Build
+  - name: 'Block #1'
+    dependencies: []
     task:
       jobs:
-        - name: Build
+        - name: 'Job #1'
           commands:
-            - export BRANCH_NAME=$SEMAPHORE_GIT_BRANCH
             - make ci
-            - |-
-              if [ -z "${SEMAPHORE_GIT_PR_NUMBER}" ]; then 
-                make cd CONFIRM=true;
-              fi
-            - |-
-              if [ -z "${SEMAPHORE_GIT_PR_NUMBER}" ]; then
-                make maybe-build-release;
-              fi
