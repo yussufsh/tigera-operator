@@ -11,4 +11,4 @@ blocks:
         - name: 'Job #1'
           commands:
             - checkout
-            - make test
+            - make image ARCH-ppc64le
