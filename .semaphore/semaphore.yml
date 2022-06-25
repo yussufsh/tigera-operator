@@ -13,4 +13,4 @@ blocks:
         - name: 'Job #1'
           commands:
             - checkout
-            - make image-all
+            - make images ARCH=ppc64le
